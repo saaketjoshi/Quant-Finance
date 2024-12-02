@@ -1,0 +1,118 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "9f8d44bc-2756-4465-a08b-3c1010e26dd2",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdin",
+     "output_type": "stream",
+     "text": [
+      " Enter coupon rate in APR: 8\n",
+      " Enter term_to_maturity: 5\n",
+      " Enter yield to maturity: 6\n",
+      "Enter par value: 1000\n",
+      " Enter compounding frequency: 2\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " \n",
+      " Bond value is $1085.30\n",
+      " \n",
+      " Macaualy duration is: 4.25 years\n",
+      " \n",
+      " Modified duration is: 4.13 years\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Defining function to calculate bond value\n",
+    "\n",
+    "def bond_value(coupon_rate, term_to_maturity, ytm, par_value, compounding):\n",
+    "    coupon_payment = (coupon_rate / 100) * par_value / compounding\n",
+    "    periods = term_to_maturity * compounding\n",
+    "    ytm_periodic_rate = ytm / 100 / compounding\n",
+    "\n",
+    "    pv_of_coupons = sum((coupon_payment)/(1 + ytm_periodic_rate) ** t for t in range(1, periods + 1)) \n",
+    "    pv_par_value = par_value / (1 + ytm_periodic_rate) ** periods\n",
+    "    \n",
+    "    value_of_bond = pv_of_coupons + pv_par_value\n",
+    "    return value_of_bond\n",
+    "\n",
+    "# Defining function for Macaulay duration, Modified duration\n",
+    "def duration(coupon_rate, term_to_maturity, ytm, par_value, compounding):\n",
+    "    coupon_payment = (coupon_rate/ 100) * par_value / compounding\n",
+    "    periods = term_to_maturity * compounding\n",
+    "    ytm_periodic_rate = ytm / 100 / compounding\n",
+    "\n",
+    "    value_of_bond = bond_value(coupon_rate,term_to_maturity,ytm,par_value,compounding)\n",
+    "\n",
+    "    weighted_cash_flows = [t*coupon_payment / (1+ ytm_periodic_rate) **t  for t in range(1, periods+1)]\n",
+    "    weighted_cash_flows.append(periods * par_value / (1 + ytm_periodic_rate) ** periods)\n",
+    "\n",
+    "    macaulay_duration_period = sum(weighted_cash_flows) / value_of_bond\n",
+    "\n",
+    "    macaulay_duration = macaulay_duration_period / compounding\n",
+    "\n",
+    "    modified_duration = macaulay_duration / (1+ytm_periodic_rate)\n",
+    "\n",
+    "    return macaulay_duration, modified_duration\n",
+    "\n",
+    "# Defining main function\n",
+    "def main():\n",
+    "    coupon_rate = float(input(\" Enter coupon rate (APR) as a perentage (e.g., 5 for 5%):\"))\n",
+    "    term_to_maturity = int(input(\" Enter term_to_maturity:\"))\n",
+    "    ytm = float(input(\" Enter yield to maturity (APR) as a perentage (e.g., 5 for 5%):\"))\n",
+    "    par_value = int(input(\" Enter par value:\"))\n",
+    "    par_value = 1000 if par_value == \" \" else float(par_value) \n",
+    "    compounding = int(input(\" Enter compounding frequency:\"))\n",
+    "    compounding = 2 if compounding == \" \" else int(compounding)  \n",
+    "\n",
+    "    calculate_bond_value = bond_value (coupon_rate, term_to_maturity, ytm, par_value, compounding)\n",
+    "    calculate_macaulay_duration,calculate_modified_duration = duration(coupon_rate, term_to_maturity, ytm, par_value, compounding)\n",
+    "\n",
+    "\n",
+    "    print(f\" \\n Bond value is ${calculate_bond_value:.2f}\")\n",
+    "    print (f\" \\n Macaualy duration is: {calculate_macaulay_duration:.2f} years\")\n",
+    "    print (f\" \\n Modified duration is: {calculate_modified_duration:.2f} years\")\n",
+    "     \n",
+    "if __name__ == \"__main__\":\n",
+    "    main()    \n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "964a36ce-e6da-4151-ac13-4ab64644a371",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.12.4"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

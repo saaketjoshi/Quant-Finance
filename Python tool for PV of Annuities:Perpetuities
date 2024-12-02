@@ -1,0 +1,173 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 88,
+   "id": "efb93890-0485-4121-b979-7f783f18595d",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdin",
+     "output_type": "stream",
+     "text": [
+      "What do you want to calculate: Present Value (PV) or Future Value (FV)?  PV\n",
+      "Enter number of discrete forecast periods:  3\n",
+      "Enter number of distinct growth phases:  2\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Phase 1:\n"
+     ]
+    },
+    {
+     "name": "stdin",
+     "output_type": "stream",
+     "text": [
+      "Enter growth rate for this phase (as a decimal):  0.02\n",
+      "Enter length of this phase (in periods):  1\n",
+      "Enter the annual cash flow for this phase:  1000\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Phase 2:\n"
+     ]
+    },
+    {
+     "name": "stdin",
+     "output_type": "stream",
+     "text": [
+      "Enter growth rate for this phase (as a decimal):  0.04\n",
+      "Enter length of this phase (in periods):  1\n",
+      "Is this phase an annuity or perpetuity?  annuity\n",
+      "Enter the amount for this annuity:  1200\n",
+      "Enter the discount rate (as a decimal):  0.1\n",
+      "Enter the forecast value for period 1:  150\n",
+      "Enter the forecast value for period 2:  200\n",
+      "Enter the forecast value for period 3:  350\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "TOTAL PV = $2698.85\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Define PV Annuity function\n",
+    "def calculate_pv_annuity(cash_flow, rate, periods):\n",
+    "    return cash_flow * (1 - (1 + rate)**-periods) / rate\n",
+    "\n",
+    "# Define PV Perpetuity function\n",
+    "def calculate_pv_perpetuity(cash_flow, rate):\n",
+    "    return cash_flow / rate\n",
+    "\n",
+    "# Define FV Annuity function\n",
+    "def calculate_fv_annuity(cash_flow, rate, periods):\n",
+    "    return cash_flow * ((1 + rate)**periods - 1) / rate\n",
+    "\n",
+    "# Query the user for PV or FV calculation\n",
+    "def main():\n",
+    "    value = input(\"What do you want to calculate: Present Value (PV) or Future Value (FV)? \").strip().upper()\n",
+    "    if value not in [\"PV\", \"FV\"]:\n",
+    "        print(\"Invalid value\")\n",
+    "        return\n",
+    "\n",
+    "    discrete_forecast_period = int(input(\"Enter number of discrete forecast periods: \"))\n",
+    "    num_phases = int(input(\"Enter number of distinct growth phases: \"))\n",
+    "\n",
+    "# Loop construct to iterate every phase and collect the growth rate\n",
+    "    growth_phases = []  #initializing a list to add all values after iterating the loop\n",
+    "    for i in range(num_phases):\n",
+    "        print(f\"Phase {i+1}:\")\n",
+    "        rate = float(input(\"Enter growth rate for this phase (as a decimal): \"))\n",
+    "        length = int(input(\"Enter length of this phase (in periods): \"))\n",
+    "        if i == num_phases - 1: # condition to check if final phase is an annuity or perpetuity\n",
+    "            phase_type = input(\"Is this phase an annuity or perpetuity? \").strip().lower()\n",
+    "            amount = float(input(f\"Enter the amount for this {phase_type}: \"))\n",
+    "            growth_phases.append((rate, length, phase_type, amount))\n",
+    "        else:\n",
+    "            amount = float(input(\"Enter the annual cash flow for this phase: \"))\n",
+    "            growth_phases.append((rate, length, 'annuity', amount)) # Values are appended to growth_phases[] list\n",
+    "\n",
+    "    discount_rate = float(input(\"Enter the discount rate (as a decimal): \"))\n",
+    "\n",
+    "    # PV calculations for discrete_forecasts and annuity/perpetuity\n",
+    "    if value == \"PV\":\n",
+    "        total_pv = 0\n",
+    "        for phase in growth_phases:\n",
+    "            rate, length, phase_type, amount = phase\n",
+    "            if phase_type == \"annuity\":\n",
+    "                total_pv += calculate_pv_annuity(amount, rate, length)\n",
+    "            elif phase_type == \"perpetuity\":\n",
+    "                total_pv += calculate_pv_perpetuity(amount, rate)\n",
+    "\n",
+    "        pv_discrete_forecast = 0\n",
+    "        for period in range(1, discrete_forecast_period + 1):\n",
+    "            forecast_value = float(input(f\"Enter the forecast value for period {period}: \"))\n",
+    "            pv_discrete_forecast += forecast_value / (1 + discount_rate)**period\n",
+    "\n",
+    "        total_pv += pv_discrete_forecast\n",
+    "        print(f\"TOTAL PV = ${total_pv:.2f}\")\n",
+    "\n",
+    "     # FV calculations for discrete_forecasts and annuity/perpetuity\n",
+    "    \n",
+    "    elif value == \"FV\":\n",
+    "        total_fv = 0\n",
+    "        for phase in growth_phases:\n",
+    "            rate, length, phase_type, amount = phase\n",
+    "            if phase_type == \"annuity\":\n",
+    "                total_fv += calculate_fv_annuity(amount, rate, length)\n",
+    "            elif phase_type == \"perpetuity\":\n",
+    "                print(\"Perpetuity is not applicable for future value calculation.\")\n",
+    "\n",
+    "        fv_discrete_forecast = 0\n",
+    "        for period in range(1, discrete_forecast_period + 1):\n",
+    "            forecast_value = float(input(f\"Enter the forecast value for period {period}: \"))\n",
+    "            fv_discrete_forecast += forecast_value * (1 + discount_rate)**period\n",
+    "\n",
+    "        total_fv += fv_discrete_forecast\n",
+    "        print(f\"TOTAL FV = ${total_fv:.2f}\")\n",
+    "\n",
+    "if __name__ == \"__main__\":\n",
+    "    main()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3be7652f-f83b-400d-bb9e-0257f8dbcd98",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.12.4"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
